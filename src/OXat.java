@@ -77,7 +77,8 @@ public class OXat {
 			toUserName = KeyboardIO.readLine("Usuari: ");
 			try {
 				ResultSet rs;
-				rs = db.select("Id", "Users", toUserName+"=name", "Name");
+				rs = db.select("Id", "USERS", "name='"+ toUserName+"'", "Name");
+				rs.next();
 				toUserId = rs.getInt("Id");
 				accessOK = true;
 			} catch (Exception e) {
@@ -86,7 +87,7 @@ public class OXat {
 		} while (!accessOK);
 		message = KeyboardIO.readLine("Missatge:\n");
 		try {
-			db.insert("Messages", "Text, From_User, To_User", message+", "+userId+", "+toUserId);
+			db.insert("Messages", "Text, From_User, To_User", "'"+message+"', "+userId+", "+toUserId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

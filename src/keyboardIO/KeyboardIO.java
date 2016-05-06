@@ -69,12 +69,12 @@ public class KeyboardIO {
 
 	public static int menu(String[] options, String chooseOptionMessage, String errorMessage) {
 		for (int i = 0; i < options.length; i++) {
-			println(i + ". " + options[i]);
+			println((i+1) + ". " + options[i]);
 		}
 		int option;
 		do {
 			option = readInt(chooseOptionMessage, errorMessage);
-		} while (option > 0 && option <= options.length);
+		} while (option < 1 || option > options.length);
 		return option;
 	}
 
