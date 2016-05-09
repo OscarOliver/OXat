@@ -8,14 +8,18 @@ import java.sql.ResultSet;
  * Created by alumne on 01/05/16.
  */
 public class OXat {
-	DBGestion db = new DBGestion("127.0.0.1", "root", "alumne", "OXat");
+	DBGestion db;
 	int userId;
 
 	public static void main(String[] args) {
-		new OXat().init();
+		String IP;
+		if (args.length == 0) IP = "127.0.0.1";
+		else				  IP = args[0];
+		new OXat().init(IP);
 	}
 
-	public void init() {
+	public void init(String ip) {
+		db = new DBGestion(ip, "root", "alumne", "OXat");
 		getUser();
 		start();
 	}
@@ -51,8 +55,8 @@ public class OXat {
 
 	private void start() {
 		String [] menu = {"Enviar missatge", "Veure missatges", "Sortir"};
-		int option = KeyboardIO.menu(menu, "Introdueix opció: ", "Opció invàlida.");
 		while (true) {
+			int option = KeyboardIO.menu(menu, "Introdueix opció: ", "Opció invàlida.");
 			switch (option) {
 				case 1:
 					sendMessage();
@@ -77,31 +81,39 @@ public class OXat {
 			toUserName = KeyboardIO.readLine("Usuari: ");
 			try {
 				ResultSet rs;
-				rs = db.select("Id", "USERS", "name='"+ toUserName+"'", "Name");
+				rs = db.select("Id", "USERS", "Name='"+ toUserName+"'", "Name");
 				rs.next();
 				toUserId = rs.getInt("Id");
 				accessOK = true;
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				db.closeConnection();
 			}
 		} while (!accessOK);
 		message = KeyboardIO.readLine("Missatge:\n");
 		try {
+			Debug.log(	"From: " + userId   + "\n" +
+						"To:   " + toUserId + "\n" +
+						message);
+			//Debug.log( db.function("getName", toUserId+"") );
 			db.insert("Messages", "Text, From_User, To_User", "'"+message+"', "+userId+", "+toUserId);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Debug.log(e.getMessage());
 		}
 	}
 
 	private void showMessages() {
 		ResultSet rs;
 		try {
-			rs = db.select("Text, To_User", "Messages", userId+"= From_User", "Time");
+			rs = db.select("Text, From_User", "Messages", "To_User="+userId, "Time");
 			while(rs.next()) {
 				KeyboardIO.println(rs.getString("From_User") + "\t" + rs.getString("Text"));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Debug.log(e.getMessage());
+		} finally {
+			db.closeConnection();
 		}
 	}
 }
