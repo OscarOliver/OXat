@@ -3,6 +3,6 @@
  */
 public class Debug {
 	public static void log(String missage) {
-		System.out.println(missage);
+		System.out.println(" #" + missage);
 	}
 }

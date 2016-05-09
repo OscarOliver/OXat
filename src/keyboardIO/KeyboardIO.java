@@ -17,6 +17,11 @@ public class KeyboardIO {
 		return readLine();
 	}
 
+
+	public static int readInt(String message) {
+		return readInt(message, null);
+	}
+
 	public static int readInt(String message, String errorMessage) {
 		boolean correcte = false;
 		Scanner sc = new Scanner(System.in);
@@ -29,15 +34,12 @@ public class KeyboardIO {
 				number = Integer.parseInt(input);
 				correcte = true;
 			} catch (NumberFormatException nfe) {
-				printErrorMessage(nfe, errorMessage);
+				println(errorMessage);
 			}
 		}
 		return number;
 	}
 
-	public static int readInt(String message) {
-		return readInt(message, null);
-	}
 
 	public static void print(String text) {
 		System.out.print(text);
@@ -67,6 +69,20 @@ public class KeyboardIO {
 		System.out.println(number);
 	}
 
+
+	public static void printTitle(String title) {
+		int n = title.length() +4;
+		for (int i = 0; i < n; i++) {
+			print("*");
+		}
+		println();
+		println("* " + title + " *");
+		for (int i = 0; i < n; i++) {
+			print("*");
+		}
+		println();
+	}
+
 	public static int menu(String[] options, String chooseOptionMessage, String errorMessage) {
 		for (int i = 0; i < options.length; i++) {
 			println((i+1) + ". " + options[i]);
@@ -76,16 +92,5 @@ public class KeyboardIO {
 			option = readInt(chooseOptionMessage, errorMessage);
 		} while (option < 1 || option > options.length);
 		return option;
-	}
-
-	private static void printErrorMessage(Exception e) {
-		printErrorMessage(e, null);
-	}
-
-	private static void printErrorMessage(Exception e, String errorMessage) {
-		if (errorMessage == null || errorMessage.equals(""))
-			println(e.getMessage());
-		else
-			println(errorMessage);
 	}
 }

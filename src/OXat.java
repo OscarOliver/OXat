@@ -19,12 +19,68 @@ public class OXat {
 	}
 
 	public void init(String ip) {
+		Debug.log("Conexió amb el servidor: " + ip);
 		db = new DBGestion(ip, "root", "alumne", "OXat");
+
+		logIn();
 		getUser();
 		start();
 	}
 
+	private void logIn() {
+		String title = "Menú d'accés";
+		KeyboardIO.printTitle(title);
+
+		String [] menu = {"Accedir", "Registrar-se", "Sortir"};
+
+		int option = KeyboardIO.menu(menu,  "Introdueix opció: ", "Opció invàlida.");
+		switch (option) {
+			case 1:
+				// Do nothing --> Go to getUser();
+				break;
+			case 2:
+				crearUsuari();
+				break;
+			case 3:
+				exit();
+				break;
+		}
+	}
+
+	private void crearUsuari() {
+		String title = "Crear usuari";
+		KeyboardIO.printTitle(title);
+
+		String username;
+		boolean nameOK = false;
+		do {
+			username = KeyboardIO.readLine("Nom d'usuari: ");
+			try {
+				db.insert("USERS", "Name, Password", "'" + username + "', 'abc123'");
+				nameOK = true;
+			} catch (Exception e) {
+				Debug.log(e.getMessage());
+				KeyboardIO.println("Aquest nom d'usuari ja existeix.");
+				nameOK = false;
+			}
+		} while (!nameOK);
+
+		String password, pw;
+		do {
+			password = KeyboardIO.readLine("Contrasenya: ");
+			pw = KeyboardIO.readLine("Repeteix contrasenya: ");
+		} while (!password.equals(pw));
+		try {
+			db.update("USERS", "Password = '" + pw + "'", "Name = '" + username + "'");
+		} catch (Exception e) {
+			Debug.log(e.getMessage());
+		}
+	}
+
 	private void getUser() {
+		String title = "Accés";
+		KeyboardIO.printTitle(title);
+
 		String username;
 		String password;
 
@@ -32,7 +88,7 @@ public class OXat {
 		int attempts = 3;
 		do {
 			username = KeyboardIO.readLine("Nom d'usuari: ");
-			password = KeyboardIO.readLine("Password: ");
+			password = KeyboardIO.readLine("Contrasenya: ");
 			try {
 				ResultSet rs;
 				rs = db.select("Id", "USERS", "Name='"+username+"' AND Password='"+password+"'", "Name");
@@ -45,7 +101,7 @@ public class OXat {
 				attempts--;
 				if (attempts == 0) {
 					KeyboardIO.println("Has realitzat massa intents.");
-					System.exit(0);
+					exit();
 				}
 			} finally {
 				db.closeConnection();
@@ -54,7 +110,11 @@ public class OXat {
 	}
 
 	private void start() {
+		String title = "OXat";
+		KeyboardIO.printTitle(title);
+
 		String [] menu = {"Enviar missatge", "Veure missatges", "Sortir"};
+
 		while (true) {
 			int option = KeyboardIO.menu(menu, "Introdueix opció: ", "Opció invàlida.");
 			switch (option) {
@@ -65,7 +125,7 @@ public class OXat {
 					showMessages();
 					break;
 				case 3:
-					System.exit(0);
+					exit();
 					break;
 			}
 		}
@@ -115,5 +175,10 @@ public class OXat {
 		} finally {
 			db.closeConnection();
 		}
+	}
+
+	private void exit() {
+		KeyboardIO.println("\nFins aviat!");
+		System.exit(0);
 	}
 }
