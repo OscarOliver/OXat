@@ -186,9 +186,9 @@ public class OXat {
 		}
 	}
 
-	private void pause(String missatge) {
+	private void pause(String message) {
 		Scanner sc = new Scanner(System.in);
-		KeyboardIO.print(missatge);
+		KeyboardIO.print(message);
 		sc.nextLine();
 	}
 

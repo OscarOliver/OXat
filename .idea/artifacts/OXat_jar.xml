@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="OXat:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/OXat_jar</output-path>
+    <root id="archive" name="OXat.jar">
+      <element id="module-output" name="OXat" />
+      <element id="extracted-dir" path="$USER_HOME$/mysql-connector-java-5.1.38/mysql-connector-java-5.1.38-bin.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
