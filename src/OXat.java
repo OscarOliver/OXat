@@ -1,7 +1,9 @@
 import database.DBGestion;
 import keyboardIO.KeyboardIO;
 
+import java.security.Key;
 import java.sql.ResultSet;
+import java.util.Scanner;
 
 
 /**
@@ -23,7 +25,9 @@ public class OXat {
 		db = new DBGestion(ip, "root", "alumne", "OXat");
 
 		logIn();
+		KeyboardIO.println("\n\n");
 		getUser();
+		KeyboardIO.println("\n\n");
 		start();
 	}
 
@@ -39,6 +43,7 @@ public class OXat {
 				// Do nothing --> Go to getUser();
 				break;
 			case 2:
+				KeyboardIO.println("\n\n");
 				crearUsuari();
 				break;
 			case 3:
@@ -128,6 +133,9 @@ public class OXat {
 					exit();
 					break;
 			}
+
+			pause("\n\nPrèmer intro <-' per continuar...");
+			KeyboardIO.println("\n");
 		}
 	}
 
@@ -170,11 +178,18 @@ public class OXat {
 			while(rs.next()) {
 				KeyboardIO.println(rs.getString("From_User") + "\t" + rs.getString("Text"));
 			}
+
 		} catch (Exception e) {
 			Debug.log(e.getMessage());
 		} finally {
 			db.closeConnection();
 		}
+	}
+
+	private void pause(String missatge) {
+		Scanner sc = new Scanner(System.in);
+		KeyboardIO.print(missatge);
+		sc.nextLine();
 	}
 
 	private void exit() {
