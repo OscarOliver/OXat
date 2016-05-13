@@ -18,7 +18,8 @@ public class DataBase {
 		this.username = username;
 		this.password = password;
 		this.database = databaseName;
-		this.url = "jdbc:mysql://localhost/" + this.database;
+		//this.url = "jdbc:mysql://localhost/" + this.database;
+		this.url = "jdbc:mysql://192.168.222.111:3306/" + this.database;
 	}
 	
 	// -- GET DATABASE INFO --
