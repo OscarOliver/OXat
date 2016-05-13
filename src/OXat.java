@@ -15,7 +15,7 @@ public class OXat {
 
 	public static void main(String[] args) {
 		String IP;
-		if (args.length == 0) IP = "127.0.0.1";
+		if (args.length == 0) IP = "127.0.0.1"; //IP = "192.168.222.111";
 		else				  IP = args[0];
 		new OXat().init(IP);
 	}
@@ -172,11 +172,17 @@ public class OXat {
 	}
 
 	private void showMessages() {
-		ResultSet rs;
+		ResultSet rs, rs2;
+		String username;
 		try {
 			rs = db.select("Text, From_User", "Messages", "To_User="+userId, "Time");
+
 			while(rs.next()) {
-				KeyboardIO.println(rs.getString("From_User") + "\t" + rs.getString("Text"));
+				String id = rs.getString("From_User");
+				rs2 = db.select("Name", "USERS", "Id="+id, null);
+				rs2.next();
+				username = rs2.getString("Name");
+				KeyboardIO.println(username + "\t" + rs.getString("Text"));
 			}
 
 		} catch (Exception e) {
