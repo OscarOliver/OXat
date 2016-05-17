@@ -1,6 +1,9 @@
 package database;
 import java.sql.ResultSet;
 
+/**
+ * Created by Oscar Oliver.
+ */
 
 public class DBGestion {
 	
@@ -184,21 +187,6 @@ public class DBGestion {
 	}
 
 
-	// -- FUNCION --
-	/**
-	 * Call a function
-	 * @param function_name
-	 * @param args the function arguments. Format: arg1, arg2, ...
-	 * @return
-	 */
-	public String function(String function_name, String args) throws Exception {
-		String sql = "exec " + function_name + "(" + args + ");";
-		String result;
-		db.openConnection();
-		result = db.executeFunction(sql);
-		db.closeConnection();
-		return result;
-	}
 	
 	/**
 	 * Close the data base connection.

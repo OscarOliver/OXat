@@ -1,6 +1,9 @@
 package database;
 import java.sql.*;
 
+/**
+ * Created by Oscar Oliver.
+ */
 
 public class DataBase {
 
@@ -69,14 +72,6 @@ public class DataBase {
 	public int executeUpdate(String sql) throws SQLException {
 		stmt = conn.createStatement();
 		return stmt.executeUpdate(sql);
-	}
-
-	public String executeFunction(String sql) throws SQLException {
-		CallableStatement sentencia=conn.prepareCall("{?=call getName(?)}");	//Declarar la sentencia.
-		sentencia.registerOutParameter(1, Types.INTEGER);						//Registrar el parámetro de entrada
-		sentencia.setInt(2, 1);													//Registrar el parámetro de salida
-		sentencia.executeQuery();												//Realizar la llamada
-		return sentencia.getString(1);											//Recoger el parámetro de salida
 	}
 	
 	

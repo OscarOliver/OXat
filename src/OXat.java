@@ -1,152 +1,58 @@
 import database.DBGestion;
-import keyboardIO.KeyboardIO;
+import terminalIO.TerminalIO;
 
-import java.security.Key;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
 /**
- * Created by alumne on 01/05/16.
+ * Created by Oscar Oliver on 01/05/16.
  */
 public class OXat {
 	DBGestion db;
 	int userId;
 
-	public static void main(String[] args) {
-		String IP;
-		if (args.length == 0) IP = "127.0.0.1"; //IP = "192.168.222.111";
-		else				  IP = args[0];
-		new OXat().init(IP);
+	public OXat (String databaseServerIP) {
+		Debug.log("Conexió amb el servidor: " + databaseServerIP);
+		db = new DBGestion(databaseServerIP, "root", "alumne", "OXat");
 	}
 
-	public void init(String ip) {
-		Debug.log("Conexió amb el servidor: " + ip);
-		db = new DBGestion(ip, "root", "alumne", "OXat");
 
-		logIn();
-		KeyboardIO.println("\n\n");
-		getUser();
-		KeyboardIO.println("\n\n");
-		start();
-	}
-
-	private void logIn() {
-		String title = "Menú d'accés";
-		KeyboardIO.printTitle(title);
-
-		String [] menu = {"Accedir", "Registrar-se", "Sortir"};
-
-		int option = KeyboardIO.menu(menu,  "Introdueix opció: ", "Opció invàlida.");
-		switch (option) {
-			case 1:
-				// Do nothing --> Go to getUser();
-				break;
-			case 2:
-				KeyboardIO.println("\n\n");
-				crearUsuari();
-				break;
-			case 3:
-				exit();
-				break;
-		}
-	}
-
-	private void crearUsuari() {
-		String title = "Crear usuari";
-		KeyboardIO.printTitle(title);
-
-		String username;
-		boolean nameOK = false;
-		do {
-			username = KeyboardIO.readLine("Nom d'usuari: ");
-			try {
-				db.insert("USERS", "Name, Password", "'" + username + "', 'abc123'");
-				nameOK = true;
-			} catch (Exception e) {
-				Debug.log(e.getMessage());
-				KeyboardIO.println("Aquest nom d'usuari ja existeix.");
-				nameOK = false;
-			}
-		} while (!nameOK);
-
-		String password, pw;
-		do {
-			password = KeyboardIO.readLine("Contrasenya: ");
-			pw = KeyboardIO.readLine("Repeteix contrasenya: ");
-		} while (!password.equals(pw));
+	public boolean createUser(String username, String password) {
 		try {
-			db.update("USERS", "Password = '" + pw + "'", "Name = '" + username + "'");
+			db.insert("USERS", "Name, Password", "'" + username + "', " + password);
+			return true;
 		} catch (Exception e) {
 			Debug.log(e.getMessage());
+			return false;
 		}
 	}
 
-	private void getUser() {
-		String title = "Accés";
-		KeyboardIO.printTitle(title);
-
-		String username;
-		String password;
-
+	public boolean logIn(String username, String password) {
 		boolean accessOK = false;
-		int attempts = 3;
-		do {
-			username = KeyboardIO.readLine("Nom d'usuari: ");
-			password = KeyboardIO.readLine("Contrasenya: ");
-			try {
-				ResultSet rs;
-				rs = db.select("Id", "USERS", "Name='"+username+"' AND Password='"+password+"'", "Name");
-				rs.next();
-				userId = rs.getInt("Id");
-				Debug.log("Id: " + userId);
-				accessOK = true;
-			} catch (Exception e) {
-				KeyboardIO.println(e.getMessage());
-				attempts--;
-				if (attempts == 0) {
-					KeyboardIO.println("Has realitzat massa intents.");
-					exit();
-				}
-			} finally {
-				db.closeConnection();
-			}
-		} while (!accessOK);
-	}
 
-	private void start() {
-		String title = "OXat";
-		KeyboardIO.printTitle(title);
-
-		String [] menu = {"Enviar missatge", "Veure missatges", "Sortir"};
-
-		while (true) {
-			int option = KeyboardIO.menu(menu, "Introdueix opció: ", "Opció invàlida.");
-			switch (option) {
-				case 1:
-					sendMessage();
-					break;
-				case 2:
-					showMessages();
-					break;
-				case 3:
-					exit();
-					break;
-			}
-
-			pause("\n\nPrèmer intro <-' per continuar...");
-			KeyboardIO.println("\n");
+		try {
+			ResultSet rs;
+			rs = db.select("Id", "USERS", "Name='"+username+"' AND Password='"+password+"'", "Name");
+			rs.next();
+			userId = rs.getInt("Id");
+			Debug.log("Id: " + userId);
+			accessOK = true;
+		} catch (Exception e) {
+			Debug.log(e.getMessage());
+		} finally {
+			db.closeConnection();
 		}
+		return accessOK;
 	}
 
-	private void sendMessage() {
-		String toUserName;
+	public boolean sendMessage(String toUserName, String message) {
 		int toUserId = userId;
-		String message;
 
 		boolean accessOK = false;
 		do {
-			toUserName = KeyboardIO.readLine("Usuari: ");
 			try {
 				ResultSet rs;
 				rs = db.select("Id", "USERS", "Name='"+ toUserName+"'", "Name");
@@ -159,47 +65,51 @@ public class OXat {
 				db.closeConnection();
 			}
 		} while (!accessOK);
-		message = KeyboardIO.readLine("Missatge:\n");
 		try {
 			Debug.log(	"From: " + userId   + "\n" +
 						"To:   " + toUserId + "\n" +
 						message);
-			//Debug.log( db.function("getName", toUserId+"") );
 			db.insert("Messages", "Text, From_User, To_User", "'"+message+"', "+userId+", "+toUserId);
 		} catch (Exception e) {
 			Debug.log(e.getMessage());
+			return false;
 		}
+		return true;
 	}
 
-	private void showMessages() {
+	public ArrayList<String[]> getMessages() {
+		ArrayList<String[]> messages = new ArrayList<>();
 		ResultSet rs, rs2;
-		String username;
+		String username, time, text;
 		try {
-			rs = db.select("Text, From_User", "Messages", "To_User="+userId, "Time");
+			rs = db.select("Text, From_User, Time", "Messages", "To_User="+userId, "Time DESC");
 
 			while(rs.next()) {
 				String id = rs.getString("From_User");
 				rs2 = db.select("Name", "USERS", "Id="+id, null);
 				rs2.next();
 				username = rs2.getString("Name");
-				KeyboardIO.println(username + "\t" + rs.getString("Text"));
+				Timestamp timestamp = rs.getTimestamp("Time");
+				time = timestamp.toString();
+				text = rs.getString("Text");
+				messages.add(new String[] {username, time, text});
 			}
-
 		} catch (Exception e) {
 			Debug.log(e.getMessage());
 		} finally {
 			db.closeConnection();
 		}
+		return messages;
 	}
 
 	private void pause(String message) {
 		Scanner sc = new Scanner(System.in);
-		KeyboardIO.print(message);
+		TerminalIO.print(message);
 		sc.nextLine();
 	}
 
 	private void exit() {
-		KeyboardIO.println("\nFins aviat!");
+		TerminalIO.println("\nFins aviat!");
 		System.exit(0);
 	}
 }
