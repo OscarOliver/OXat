@@ -189,6 +189,66 @@ public class TerminalIO {
 	}
 
 
+	/**
+	 * Read an email address.<br>
+	 * Format accepted: *@*.*<br>
+	 * where * means at least one character.
+	 * @return an email address.
+	 * @throws Exception if the input isn't a valid email.
+	 */
+	public static String readEmail() throws Exception {
+		String email = readLine();
+		int length = email.length();
+		int arrovaPos = email.indexOf('@');
+		int dotPos = email.lastIndexOf('.');
+		if (arrovaPos == -1 || dotPos == -1 ||		// Not exists @ and .
+			arrovaPos >= dotPos-1 ||				// No spaces between them or are inverted
+			arrovaPos == 0 || dotPos == length)		// Stars with @ or ends with .
+			throw new Exception("Invalid email format. Format: *@*.*");
+
+		return email;
+	}
+
+	/**
+	 * Read an email address.<br>
+	 * Format accepted: *@*.*<br>
+	 * where * means at least one character.
+	 * @param message the message to the user.
+	 * @return an email address.
+	 * @throws Exception if the input isn't a valid email.
+	 */
+	public static String readEmail(String message) throws Exception {
+		print(message);
+		return readEmail();
+	}
+
+	/**
+	 * Read an email address.<br>
+	 * Format accepted: *@*.*<br>
+	 * where * means at least one character.
+	 * If the input isn't an email valid string, an error message will appear.
+	 * The process will be repeat until the user type a floating point number.
+	 * @param message the message to the user.
+	 * @param errorMessage the error message to the user. If it's 'null' the
+	 *                     error message will become the exception message.
+	 * @return an email address.
+	 * @throws Exception if the input isn't a valid email.
+	 */
+	public static String readEmail(String message, String errorMessage) {
+		boolean correct = false;
+		String email = "";
+		while (!correct) {
+			try {
+				email = readEmail(message);
+				correct = true;
+			} catch (Exception e) {
+				if (errorMessage == null) errorMessage = e.getMessage();
+				println(errorMessage);
+			}
+		}
+		return email;
+	}
+
 
 
 	// --- OUTPUTS -------------------- //
@@ -297,10 +357,57 @@ public class TerminalIO {
 	}
 
 	/**
+	 * Print text with left padding.
+	 * @param text the text to print.
+	 * @param length the total length.
+	 */
+	public static void printLPad(String text, int length) {
+		if (text == null) text = "null";
+		length -= text.length();
+		for (int i = 0; i < length; i++) {
+			print(" ");
+		}
+		print(text);
+	}
+
+	/**
+	 * Print text with right padding.
+	 * @param text the text to print.
+	 * @param length the total length.
+	 */
+	public static void printRPad(String text, int length) {
+		if (text == null) text = "null";
+		length -= text.length();
+		print(text);
+		for (int i = 0; i < length; i++) {
+			print(" ");
+		}
+	}
+
+	/**
+	 * Print centered text with the same padding on both sides.
+	 * @param text the text to print.
+	 * @param length the total length.
+	 */
+	public static void printCPad(String text, int length) {
+		if (text == null) text = "null";
+		length -= text.length();
+		int lPad = length/2;
+		int rPad = length - lPad;
+		for (int i = 0; i < lPad; i++) {
+			print(" ");
+		}
+		print(text);
+		for (int i = 0; i < rPad; i++) {
+			print(" ");
+		}
+	}
+
+	/**
 	 * Print a text in a rectangle made of asterisks '*'.
 	 * @param title the title text. It have to be a single line.
 	 */
-	public static void printTitle(String title) {
+	public static void printHeadTitle(String title) {
 		int n = title.length() +4;
 		for (int i = 0; i < n; i++) {
 			print("*");
@@ -311,6 +418,96 @@ public class TerminalIO {
 			print("*");
 		}
 		println();
+	}
+
+	/**
+	 * Print a text underlined with '-'.
+	 * @param title the title text. It have to be a single line.
+	 */
+	public static void printSectionTitle(String title) {
+		int n = title.length() +2;
+		println(" " + title);
+		for (int i = 0; i < n; i++) {
+			print("-");
+		}
+		println();
+	}
+
+	/**
+	 * Print a table.<br>
+	 * By default, columns are spaced 3 white spaces and null values are
+	 * changed to an empty string.
+	 * @param titles the title of each column.
+	 * @param content the table content.
+	 * @throws NullPointerException if titles or content arrays are null.
+	 * @throws Exception if titles and content have different number of columns.
+	 */
+	public static void printTable(String[] titles, String[][] content) throws Exception {
+		printTable(titles, content, "", 3);
+	}
+
+	/**
+	 * Print a table.
+	 * @param titles the title of each column.
+	 * @param content the table content.
+	 * @param nullValue a string to replace nulls in titles or content.
+	 * @param spaceBetweenColums number of white spaces between each column.
+	 * @throws NullPointerException if titles or content arrays are null.
+	 * @throws Exception if titles and content have different number of columns.
+	 */
+	public static void printTable(String[] titles, String[][] content, String nullValue, int spaceBetweenColums) throws NullPointerException, Exception {
+		if (titles == null || content == null) {
+			throw new NullPointerException("Titles and content can't be null.");
+		}
+		if (titles.length != content[0].length) {
+			throw new Exception("Titles and content have different number of columns.");
+		}
+		if (nullValue == null) nullValue = "";
+		if (spaceBetweenColums < 1) spaceBetweenColums = 1;
+		
+		// Calculate width columns vector
+		int[] colMaxs = new int[titles.length];
+		for (int i = 0; i < titles.length; i++) {
+			if (titles[i] == null) titles[i] = nullValue;
+			colMaxs[i] = titles[i].length();
+		}
+		for (int i = 0; i < content.length; i++) {
+			for (int j = 0; j < content[0].length; j++) {
+				if (content[i][j] == null) content[i][j] = nullValue;
+				if (content[i][j].length() > colMaxs[j]) {
+					colMaxs[j] = content[i][j].length();
+				}
+			}
+		}
+		for (int i = 0; i < colMaxs.length - 1; i++) {
+			colMaxs[i] += spaceBetweenColums;
+		}
+		colMaxs[colMaxs.length - 1] += 1;
+
+		// Print titles
+		int spaces;
+		print(" ");
+		for (int i = 0; i < titles.length; i++) {
+			printRPad(titles[i], colMaxs[i]);
+		}
+		println();
+
+		// Print -'s
+		for (int i = 0; i < colMaxs.length; i++) {
+			for (int j = 0; j < colMaxs[i]; j++) {
+				print("-");
+			}
+		}
+		println("-");
+
+		// Print content
+		for (int i = 0; i < content.length; i++) {
+			print(" ");
+			for (int j = 0; j < content[0].length; j++) {
+				printRPad(content[i][j], colMaxs[j]);
+			}
+			println();
+		}
 	}
 
 

@@ -32,7 +32,7 @@ public class OXatCopy {
 
 	private void logIn() {
 		String title = "Menú d'accés";
-		TerminalIO.printTitle(title);
+		TerminalIO.printHeadTitle(title);
 
 		String [] menu = {"Accedir", "Registrar-se", "Sortir"};
 
@@ -53,7 +53,7 @@ public class OXatCopy {
 
 	private void crearUsuari() {
 		String title = "Crear usuari";
-		TerminalIO.printTitle(title);
+		TerminalIO.printHeadTitle(title);
 
 		String username;
 		boolean nameOK = false;
@@ -83,7 +83,7 @@ public class OXatCopy {
 
 	private void getUser() {
 		String title = "Accés";
-		TerminalIO.printTitle(title);
+		TerminalIO.printHeadTitle(title);
 
 		String username;
 		String password;
@@ -115,7 +115,7 @@ public class OXatCopy {
 
 	private void start() {
 		String title = "OXat";
-		TerminalIO.printTitle(title);
+		TerminalIO.printHeadTitle(title);
 
 		String [] menu = {"Enviar missatge", "Veure missatges", "Sortir"};
 

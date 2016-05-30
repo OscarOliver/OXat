@@ -21,9 +21,9 @@ public class GenericGUI extends JFrame {
 
 
 	public void setMainPanel(JComponent component) {
-		this.mainPanel = component;
 		mainPanel.removeAll();
-		contentPanel.add(mainPanel, BorderLayout.CENTER);
+		mainPanel.add(component);
+		//contentPanel.add(mainPanel, BorderLayout.CENTER);
 		refresh();
 	}
 
@@ -31,41 +31,48 @@ public class GenericGUI extends JFrame {
 		JPanel panel = new JPanel();
 		panel.add(button);
 		buttonsPanel.add(panel);
+		refresh();
 	}
 
 	public void addButton(JButton button, int pos) {
 		JPanel panel = new JPanel();
 		panel.add(button);
 		buttonsPanel.add(panel, pos);
+		refresh();
 	}
 
 	public void removeButtons() {
 		buttonsPanel = new JPanel(new GridLayout(0, 1));
+		refresh();
 	}
 
-	public void setMissage(String text) {
+	public void setMessage(String text) {
 		missageLabel.setText(text);
 	}
 
-	public String getMissage() {
+	public String getMessage() {
 		return missageLabel.getText();
 	}
 
 	public void setHeadPanel(JComponent headPanel) {
 		this.headPanel = headPanel;
+		refresh();
 	}
 
 	public void setRightPanel(JComponent rightPanel) {
-		this.rightPanel = rightPanel;
+		this.rightPanel.removeAll();
+		this.rightPanel.add(rightPanel);
+		refresh();
 	}
 
 	public void refresh() {
-		repaint();
+		pack();
 	}
 
 	private void makeFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(500, 500);
+		setMinimumSize(new Dimension(300, 300));
+		setPreferredSize(new Dimension(500, 500));
 
 		contentPanel = (JPanel) getContentPane();
 		contentPanel.setLayout(new BorderLayout());
@@ -85,6 +92,7 @@ public class GenericGUI extends JFrame {
 		rightPanel = new JPanel();
 		contentPanel.add(rightPanel, BorderLayout.EAST);
 
+		pack();
 		setVisible(true);
 	}
 }
